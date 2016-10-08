@@ -30,7 +30,7 @@ stdenv.mkDerivation rec {
     sha256 = "06ql3x732x2rlnanv0a8aharsnj91j5kplksg574090rks51z42d";
   };
 
-  patches = [ ./deprecated-scopedptr.patch ];
+  patches = [ ./deprecated-scopedptr.patch ./newline.patch ];
 
   postPatch = ''
     patch -i ${stdcxx-patch} -p 0
