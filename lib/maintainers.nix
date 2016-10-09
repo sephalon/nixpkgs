@@ -407,6 +407,7 @@
   schneefux = "schneefux <schneefux+nixos_pkg@schneefux.xyz>";
   schristo = "Scott Christopher <schristopher@konputa.com>";
   scolobb = "Sergiu Ivanov <sivanov@colimite.fr>";
+  sephalon = "Stefan Wiehler <sephalon@farce.de>";
   sepi = "Raffael Mancini <raffael@mancini.lu>";
   seppeljordan = "Sebastian Jordan <sebastian.jordan.mail@googlemail.com>";
   sheenobu = "Sheena Artrip <sheena.artrip@gmail.com>";
