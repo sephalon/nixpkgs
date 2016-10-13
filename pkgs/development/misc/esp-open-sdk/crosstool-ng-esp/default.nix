@@ -1,0 +1,109 @@
+{ fetchgit, autoconf, help2man, stdenv, lib, makeWrapper, fetchurl, writeScript
+, gcc, m4, perl, which, gperf, bison, flex, texinfo, wget, libtool, automake
+, ncurses, file, unzip, python, expat
+}:
+let
+  inherit (lib) concatMapStringsSep;
+  inherit (stdenv) mkDerivation ;
+  inherit (stdenv.lib) overrideDerivation;
+
+  version = "1.20.0";
+
+  gcc-wrapper-with-triple = mkDerivation rec {
+    name = "gcc-with-triple-fakey";
+    srcs = [];
+    builder = writeScript "${name}-builder.sh" ''
+      source $stdenv/setup
+      mkdir -p $out/bin
+      ln -s $NIX_CC/bin/gcc $out/bin/$(basename $(find ${gcc.cc.outPath}/bin -name \*-gcc))
+      ln -s $NIX_CC/bin/g++ $out/bin/$(basename $(find ${gcc.cc.outPath}/bin -name \*-g++))
+    '';
+  };
+
+  # We override expat to provide static libs as well since the ct-ng config
+  # might want static libs
+  expat-static = overrideDerivation expat (origAttrs: {
+    dontDisableStatic = true;
+  });
+
+in mkDerivation rec {
+  name = "crosstool-ng-esp-${version}";
+
+  src = fetchgit {
+    url = https://github.com/jcmvbkbc/crosstool-NG;
+    #rev = "ecfc19a597d76c0eea65148b08d7ccb505cdcac6";
+    rev = "7d844e7d80e319b5ca103d084862bdc72d140b55";
+    #sha256 = "1705rpafx8909l7ll0mkrj46dcpwdpqyv1ajp2pr6jfqs4w2i208";
+    sha256 = "079h926ay7f4ny0bjcg7h76jnn80gcnamrdgbfz821y89fnk49wy";
+  };
+
+  sdkRev = "03f5e898a059451ec5f3de30e7feff30455f7cec";
+  mforcePatch = fetchurl {
+    url = "https://raw.githubusercontent.com/pfalcon/esp-open-sdk/${sdkRev}/1000-mforce-l32.patch";
+    sha256 = "125rmfcpf2qbnp4ad4g62zml6an7yqs5nf1wbhjficlmnhvb46xw";
+  };
+
+  #prePatch = ''
+  #  cp -f ${mforcePatch} ${src}/local-patches/gcc/4.8.5/1000-mforce-l32.patch
+  #'';
+    
+  preConfigure = "./bootstrap";
+
+  buildInputs = [ autoconf help2man makeWrapper ];
+
+  # This patch adds a call to the script patchToolchainSourcesScript
+  # after ct-ng does its own patching.
+  patches = [ ./ct-ng.patch ];
+
+  # This script is executed by ct-ng after it does its own patching.
+  # It fixes some absolute pathes (/bin/pwd) in toolchain sources
+  patchToolchainSourcesScript = ./patch-toolchain-sources.sh;
+
+  # Clearing CC was required otherwise the target compiler was misidentified
+  # when building the ncurses (dependency of native gdb)
+  # CXX cleared simply because CC was also cleared, although clearing it may
+  # not be required
+  postInstall = ''
+    cp -r overlays $out/lib/
+    cp -r local-patches $out/lib/
+    cp ${mforcePatch} $out/lib/local-patches/gcc/4.8.5/1000-mforce-l32.patch
+
+    # We use substituteInPlace in patchToolchainSourcesScript so add it to ct-ng
+    declare -f substitute >> $out/lib/scripts/functions
+    declare -f substituteInPlace >> $out/lib/scripts/functions
+
+    # ct-ng.patch adds a call to the function defined in patchToolchainSourcesScript
+    cat $patchToolchainSourcesScript >> $out/lib/scripts/functions
+
+    # ct-ng requires all its inputs be discoverable for building (just adding to
+    # PATH is insufficient) so we make use of stdenv's setup, but only if run
+    # standalone. We use whether NIX_BUILD_TOP is set or not to determine this.
+    wrapProgram $out/bin/ct-ng \
+      --set LD_LIBRARY_PATH "" \
+      --run "if [ -z \"\$NIX_BUILD_TOP\" ]; then \
+                NIX_BUILD_TOP=\$(pwd); \
+                propagatedNativeBuildInputs=\"\$(cat $out/nix-support/propagated-native-build-inputs)\"; \
+                source $stdenv/setup; \
+             fi" \
+      --prefix PATH : ${gcc-wrapper-with-triple}/bin \
+      --set CC "" \
+      --set CXX ""
+  '';
+
+  # These are inputs that are both required to install ct-ng and required to
+  # build common components of toolchains (e.g. gcc and m4 are required to build
+  # gmp when ct-ng is run standalone but are not required for installing ct-ng).
+  # None (few?) of these dependencies are discovered by nix since ct-ng is, for
+  # the most part, just a collection of shell scripts. The assumption is that
+  # anything invoking, or depending on, ct-ng will require all of these
+  # dependencies. All propagated build inputs also wrap the ct-ng script so it
+  # can be run standalone, meaning any additional build dependencies for
+  # toolchain components should also be added.
+  propagatedBuildInputs = [
+    # To build/run ct-ng
+    which gperf bison flex texinfo wget libtool automake ncurses file unzip
+    gcc m4   # For building gmp
+    perl     # For installing linux headers
+    python expat-static # For gdb
+  ];
+}
