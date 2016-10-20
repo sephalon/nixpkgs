@@ -1520,6 +1520,8 @@ in
 
   eventstat = callPackage ../os-specific/linux/eventstat { };
 
+  esptool2 = callPackage ../development/tools/misc/esptool2 { };
+
   evtest = callPackage ../applications/misc/evtest { };
 
   exa = callPackage ../tools/misc/exa { };
