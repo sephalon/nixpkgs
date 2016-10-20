@@ -1,17 +1,17 @@
 diff --git a/Makefile b/Makefile
-index 3af8356..b606780 100644
+index 6ba856c..d0dce0c 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -12,7 +12,7 @@ TOOLCHAIN = $(TOP)/xtensa-lx106-elf
  # for supported versions.
- VENDOR_SDK = 1.5.4
+ VENDOR_SDK = 2.0.0
  
 -.PHONY: crosstool-NG toolchain libhal libcirom sdk
 +.PHONY: toolchain libhal libcirom sdk
  
  
  
-@@ -112,32 +112,21 @@ esptool: toolchain
+@@ -122,29 +122,18 @@ esptool: toolchain
  
  toolchain: $(TOOLCHAIN)/bin/xtensa-lx106-elf-gcc
  
@@ -31,9 +31,6 @@ index 3af8356..b606780 100644
 -	./ct-ng build
 +	ct-ng build
  
- clean-sysroot:
- 	rm -rf $(TOOLCHAIN)/xtensa-lx106-elf/sysroot/usr/lib/*
- 	rm -rf $(TOOLCHAIN)/xtensa-lx106-elf/sysroot/usr/include/*
  
 -crosstool-NG: crosstool-NG/ct-ng
 -
@@ -49,7 +46,7 @@ index 3af8356..b606780 100644
  crosstool-NG/bootstrap:
  	@echo "You cloned without --recursive, fetching submodules for you."
  	git submodule update --init --recursive
-@@ -156,7 +145,7 @@ $(TOOLCHAIN)/xtensa-lx106-elf/sysroot/usr/lib/libhal.a: $(TOOLCHAIN)/bin/xtensa-
+@@ -163,7 +152,7 @@ $(TOOLCHAIN)/xtensa-lx106-elf/sysroot/usr/lib/libhal.a: $(TOOLCHAIN)/bin/xtensa-
  
  _libhal:
  	autoreconf -i
