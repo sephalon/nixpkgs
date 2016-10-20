@@ -1,13 +1,13 @@
-{ fetchgit, autoconf, help2man, stdenv, lib, makeWrapper, fetchurl, writeScript
+{ stdenv, lib, makeWrapper, fetchgit, fetchurl, writeScript
 , gcc, m4, perl, which, gperf, bison, flex, texinfo, wget, libtool, automake
-, ncurses, file, unzip, python, expat
+, ncurses, file, unzip, python, expat, autoconf, help2man, sdkRev
 }:
 let
   inherit (lib) concatMapStringsSep;
   inherit (stdenv) mkDerivation ;
   inherit (stdenv.lib) overrideDerivation;
 
-  version = "1.20.0";
+  version = "1.22";
 
   gcc-wrapper-with-triple = mkDerivation rec {
     name = "gcc-with-triple-fakey";
@@ -31,22 +31,15 @@ in mkDerivation rec {
 
   src = fetchgit {
     url = https://github.com/jcmvbkbc/crosstool-NG;
-    #rev = "ecfc19a597d76c0eea65148b08d7ccb505cdcac6";
-    rev = "7d844e7d80e319b5ca103d084862bdc72d140b55";
-    #sha256 = "1705rpafx8909l7ll0mkrj46dcpwdpqyv1ajp2pr6jfqs4w2i208";
-    sha256 = "079h926ay7f4ny0bjcg7h76jnn80gcnamrdgbfz821y89fnk49wy";
+    rev = "ecfc19a597d76c0eea65148b08d7ccb505cdcac6";
+    sha256 = "1705rpafx8909l7ll0mkrj46dcpwdpqyv1ajp2pr6jfqs4w2i208";
   };
 
-  sdkRev = "03f5e898a059451ec5f3de30e7feff30455f7cec";
   mforcePatch = fetchurl {
     url = "https://raw.githubusercontent.com/pfalcon/esp-open-sdk/${sdkRev}/1000-mforce-l32.patch";
     sha256 = "125rmfcpf2qbnp4ad4g62zml6an7yqs5nf1wbhjficlmnhvb46xw";
   };
 
-  #prePatch = ''
-  #  cp -f ${mforcePatch} ${src}/local-patches/gcc/4.8.5/1000-mforce-l32.patch
-  #'';
-    
   preConfigure = "./bootstrap";
 
   buildInputs = [ autoconf help2man makeWrapper ];
