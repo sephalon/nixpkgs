@@ -17678,6 +17678,8 @@ in
 
   slock = callPackage ../misc/screensavers/slock { };
 
+  sming = callPackage ../development/libraries/sming { };
+
   smokeping = callPackage ../tools/networking/smokeping {
     inherit fping rrdtool;
     inherit (perlPackages)
