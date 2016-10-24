@@ -3056,6 +3056,8 @@ in
 
   opendylan_bin = callPackage ../development/compilers/opendylan/bin.nix { };
 
+  open-ecard = callPackage ../tools/security/open-ecard { };
+
   openjade = callPackage ../tools/text/sgml/openjade { };
 
   openntpd = callPackage ../tools/networking/openntpd { };
