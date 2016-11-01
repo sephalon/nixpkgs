@@ -4,13 +4,13 @@
 }:
 
 stdenv.mkDerivation rec {
-  rev = "24f10eb164947fdd38b6225f72e752d5eb785391";
+  rev = "3701f042eda49989a3f33e4ea3f2d099817f1e2d";
   name = "esp-open-sdk-${rev}";
 
   src = fetchgit {
     url = "https://github.com/pfalcon/esp-open-sdk";
     rev = rev;
-    sha256 = "1ssklx9r2rwd364hl5gwb7jhk7apw3gk39h8qbs0hgjhci7nrqzv";
+    sha256 = "1zngj05mvpiqvkvdcbz9sv3qq3kjwkqyqkalyq8r9hxvb1lzc5qi";
     deepClone = true;
   };
 
