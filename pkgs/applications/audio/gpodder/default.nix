@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pythonPackages, mygpoclient, intltool
+{ stdenv, fetchurl, pythonPackages, mygpoclient, intltool, makeDesktopItem
 , ipodSupport ? true, libgpod
 , gnome3
 }:
@@ -35,6 +35,21 @@ pythonPackages.buildPythonApplication rec {
 
   checkPhase = ''
     LC_ALL=C python -m gpodder.unittests
+  '';
+
+  desktopItem = makeDesktopItem {
+    name = "gpodder";
+    desktopName = "gPodder";
+    genericName = "Podcatcher";
+    comment = "A podcatcher written in python";
+    icon = "gpodder.svg";
+    exec = "gpodder";
+    categories = "AudioVideo;Network;Feed;";
+  };
+
+  postInstall = ''
+    mkdir -p $out/share/applications
+    cp $desktopItem/share/applications/* $out/share/applications
   '';
 
   meta = {
