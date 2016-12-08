@@ -29319,6 +29319,25 @@ in {
     '';
   };
 
+  neovim-remote = buildPythonPackage rec {
+    version = "1.4.0";
+    name = "neovim-remote-${version}";
+
+    src = pkgs.fetchurl {
+      url = "mirror://pypi/n/neovim-remote/${name}.tar.gz";
+      sha256 = "0jmsq536ll6ns40cpw4fcmfhdvdmn2xghwfkyd86c6zqaxgvz6qz";
+    };
+
+    propagatedBuildInputs = with self; [ neovim ];
+
+    meta = {
+      description = "Control Neovim instances using 'nvr' commandline tool";
+      homepage = https://github.com/mhinz/neovim-remote;
+      license = licenses.mit;
+      maintainers = with maintainers; [ sephalon ];
+    };
+  };
+
   ghp-import = buildPythonPackage rec {
     version = "0.4.1";
     name = "ghp-import-${version}";
