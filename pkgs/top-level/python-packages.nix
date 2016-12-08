@@ -29325,7 +29325,7 @@ in {
 
     src = pkgs.fetchurl {
       url = "mirror://pypi/n/neovim-remote/${name}.tar.gz";
-      sha256 = "0jmsq536ll6ns40cpw4fcmfhdvdmn2xghwfkyd86c6zqaxgvz6qz";
+      sha256 = "19mscyw7wi5w9xd4xg3xfjaz3jdbfj2q7rrbzfha88dnyl8gvzqv";
     };
 
     propagatedBuildInputs = with self; [ neovim ];
