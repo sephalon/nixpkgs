@@ -1,7 +1,7 @@
 { stdenv, callPackage, fetchurl, fetchFromGitHub, unzip
 , cmake, kodiPlain, libcec_platform, tinyxml
 , steam, libusb, pcre-cpp, jsoncpp, libhdhomerun, zlib
-, expat, glib, nspr, nss }:
+, python2Packages, expat, glib, nspr, nss }:
 
 with stdenv.lib;
 
@@ -464,6 +464,33 @@ let self = rec {
       license = licenses.cc-by-nc-sa-30;
     };
   };
+
+  yatp = python2Packages.toPythonModule (mkKodiPlugin rec {
+    plugin = "yatp";
+    namespace = "plugin.video.yatp";
+    version = "3.3.2";
+
+    src = fetchFromGitHub {
+      owner = "romanvm";
+      repo = "kodi.yatp";
+      rev = "v.${version}";
+      sha256 = "12g1f57sx7dy6wy7ljl7siz2qs1kxcmijcg7xx2xpvmq61x9qa2d";
+    };
+
+    patches = [ ./yatp/dont-monkey.patch ];
+
+    propagatedBuildInputs = [
+      simpleplugin
+      python2Packages.requests
+      python2Packages.libtorrentRasterbar
+    ];
+
+    meta = {
+      homepage = src.meta.homepage;
+      description = "Yet Another Torrent Player: libtorrent-based torrent streaming for Kodi";
+      license = licenses.gpl3;
+    };
+  });
 
   inputstream-adaptive = mkKodiABIPlugin rec {
 
