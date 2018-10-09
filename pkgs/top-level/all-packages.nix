@@ -9451,6 +9451,8 @@ with pkgs;
 
   frog = self.languageMachines.frog;
 
+  fstrcmp = callPackage ../development/libraries/fstrcmp { };
+
   fstrm = callPackage ../development/libraries/fstrm { };
 
   cfitsio = callPackage ../development/libraries/cfitsio { };
