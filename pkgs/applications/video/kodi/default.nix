@@ -18,7 +18,7 @@
 , libcec, libcec_platform, dcadec, libuuid
 , libcrossguid, libmicrohttpd
 , bluez, doxygen, giflib, glib, harfbuzz, lcms2, libidn, libpthreadstubs, libtasn1, libXdmcp
-, libplist, p11-kit, zlib
+, libplist, p11-kit, zlib, flatbuffers, fmt, fstrcmp, rapidjson
 , dbusSupport ? true, dbus ? null
 , joystickSupport ? true, cwiid ? null
 , nfsSupport ? true, libnfs ? null
@@ -40,21 +40,19 @@ assert usbSupport   -> libusb != null && ! udevSupport; # libusb won't be used i
 assert vdpauSupport -> libvdpau != null;
 
 # TODO for Kodi 18.0
-# - cmake is no longer in project/cmake
-# - maybe we can remove auto{conf,make} and libtool from inputs
 # - check if dbus support PR has been merged and add dbus as a buildInput
 # - try to use system ffmpeg (kodi 17 works best with bundled 3.1 with patches)
 
 let
-  kodiReleaseDate = "20171115";
-  kodiVersion = "17.6";
-  rel = "Krypton";
+  kodiReleaseDate = "20190112";
+  kodiVersion = "18.0rc5.2";
+  rel = "Leia";
 
   kodi_src = fetchFromGitHub {
     owner  = "xbmc";
     repo   = "xbmc";
     rev    = "${kodiVersion}-${rel}";
-    sha256 = "1pwmmbry7dajwdpmc1mdygjvxna4kl38h32d71g10yf3mdm5wmz3";
+    sha256 = "1jv9jaffn86fr5mrygbrn3j4b8fh7fv6i0r1xwcm5fnr9qwm8lvg";
   };
 
   kodiDependency = { name, version, rev, sha256, ... } @attrs:
@@ -72,9 +70,9 @@ let
 
   ffmpeg = kodiDependency rec {
     name    = "FFmpeg";
-    version = "3.1.11";
-    rev     = "${version}-${rel}-17.5"; # TODO: change 17.5 back to ${kodiVersion}
-    sha256  = "0nc4sb6v1g3l11v9h5l9n44a8r40186rcbp2xg5c7vg6wcpjid13";
+    version = "4.0.3";
+    rev     = "${version}-${rel}-RC5"; # TODO: change RC5 back to ${kodiVersion}
+    sha256  = "0l20bysv2y711khwpnpw4dz6mzd37qllki3fnv4dx1lj8ivydrlx";
     preConfigure = ''
       cp ${kodi_src}/tools/depends/target/ffmpeg/{CMakeLists.txt,*.cmake} .
     '';
@@ -136,7 +134,7 @@ in stdenv.mkDerivation rec {
       libgcrypt libgpgerror libunistring
       libcrossguid cwiid libplist
       bluez giflib glib harfbuzz lcms2 libpthreadstubs libXdmcp
-      ffmpeg
+      ffmpeg flatbuffers fmt fstrcmp rapidjson
       # libdvdcss libdvdnav libdvdread
     ]
     ++ lib.optional  dbusSupport     dbus
@@ -176,12 +174,8 @@ in stdenv.mkDerivation rec {
     doCheck = false;
 
     postPatch = ''
-      substituteInPlace xbmc/linux/LinuxTimezone.cpp \
+      substituteInPlace xbmc/platform/linux/LinuxTimezone.cpp \
         --replace 'usr/share/zoneinfo' 'etc/zoneinfo'
-    '';
-
-    preConfigure = ''
-      cd project/cmake
     '';
 
     postInstall = ''
