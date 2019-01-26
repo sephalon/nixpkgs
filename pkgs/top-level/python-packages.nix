@@ -332,6 +332,8 @@ in {
     mpi = pkgs.openmpi;
   };
 
+  limitlessled = callPackage ../development/python-modules/limitlessled { };
+
   lmtpd = callPackage ../development/python-modules/lmtpd { };
 
   logster = callPackage ../development/python-modules/logster { };
