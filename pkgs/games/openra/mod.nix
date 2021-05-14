@@ -77,6 +77,12 @@ in stdenv.mkDerivation (recursiveUpdate packageAttrs rec {
       --subst-var-by assetsError ${escapeShellArg mod.assetsError}
     chmod +x $out/lib/${pname}/launch-game.sh
 
+    substitute ${./mod-launch-dedicated.sh} $out/lib/${pname}/launch-dedicated.sh \
+      --subst-var out \
+      --subst-var-by name ${escapeShellArg mod.name} \
+      --subst-var-by title ${escapeShellArg mod.title}
+    chmod +x $out/lib/${pname}/launch-dedicated.sh
+
     ${wrapLaunchGame "-${mod.name}"}
 
     substitute ${./openra-mod.desktop} $(mkdirp $out/share/applications)/${pname}.desktop \

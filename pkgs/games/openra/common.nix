@@ -33,7 +33,15 @@ in {
       --prefix LD_LIBRARY_PATH : "${rpath}" \
       --set TERM xterm
 
+    wrapProgram $out/lib/openra${openraSuffix}/launch-dedicated.sh \
+      --prefix PATH : "${path}" \
+      --prefix LD_LIBRARY_PATH : "${rpath}" \
+      --set TERM xterm
+
     makeWrapper $out/lib/openra${openraSuffix}/launch-game.sh $(mkdirp $out/bin)/openra${openraSuffix} \
+      --run "cd $out/lib/openra${openraSuffix}"
+
+    makeWrapper $out/lib/openra${openraSuffix}/launch-dedicated.sh $(mkdirp $out/bin)/openra-dedicated${openraSuffix} \
       --run "cd $out/lib/openra${openraSuffix}"
   '';
 
